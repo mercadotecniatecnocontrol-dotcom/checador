@@ -1,0 +1,9 @@
+{
+  "name": "checador-rh",
+  "version": "1.0.0",
+  "description": "Página de RH para ver y descargar las checadas del checador Hikvision (Vercel + Supabase)",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "2.45.4"
+  }
+}

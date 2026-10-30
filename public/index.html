@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checadas · Recursos Humanos · Tecnocontrol</title>
+<link rel="icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1D2E73; --navy-hondo: #121C4B; --navy-claro: #3B4FA8;
+    --rojo: #E7402B; --rojo-suave: #FDE8E4; --rojo-texto: #B42A18;
+    --verde: #12805A; --verde-suave: #E2F4EC;
+    --ambar-suave: #FFF3D6; --ambar-texto: #8A5A00;
+    --papel: #F2F4F9; --tinta: #17203F; --gris: #5A6482; --linea: #D8DDEA;
+    --letra: "Barlow", "Segoe UI", Roboto, Arial, sans-serif;
+    --cond: "Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+    --r-s: 6px; --r-m: 12px; --r-l: 22px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: var(--letra); color: var(--tinta); background: var(--papel); -webkit-font-smoothing: antialiased; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--rojo); outline-offset: 2px; }
+  .icono { width: 1.2em; height: 1.2em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- Barra superior ---------- */
+  .barra { background: #fff; position: sticky; top: 0; z-index: 20; }
+  .barra::after { content: ""; display: block; height: 4px; background: linear-gradient(90deg, var(--navy) 0 72%, var(--rojo) 72%); }
+  .barra-in { max-width: 1280px; margin: 0 auto; padding: .7rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+  .marca { display: flex; align-items: center; gap: .9rem; color: var(--navy); }
+  .marca img { height: 40px; width: auto; display: block; }
+  .marca .texto { display: none; font-family: var(--cond); font-weight: 700; font-size: 1.55rem; letter-spacing: .02em; }
+  .marca .texto span { color: var(--rojo); }
+  .marca.sin-logo img { display: none; }
+  .marca.sin-logo .texto { display: block; }
+  .marca small { border-left: 1px solid var(--linea); padding-left: .9rem; color: var(--gris); font-weight: 600; font-size: .95rem; line-height: 1.15; }
+  nav { display: flex; gap: .25rem; margin-left: auto; }
+  nav button { background: none; border: 0; padding: .55rem 1rem; border-radius: var(--r-s); cursor: pointer; font-weight: 600; color: var(--gris); display: flex; align-items: center; gap: .45rem; }
+  nav button[aria-selected="true"] { background: var(--navy); color: #fff; }
+  nav button:not([aria-selected="true"]):hover { background: var(--papel); color: var(--navy); }
+  .sync { display: flex; align-items: center; gap: .5rem; font-size: .9rem; color: var(--gris); padding: .4rem .8rem; border-radius: 999px; background: var(--papel); white-space: nowrap; cursor: help; }
+  .sync i { width: 9px; height: 9px; border-radius: 50%; background: #A9B1C9; }
+  .sync.ok i { background: var(--verde); box-shadow: 0 0 0 0 rgba(18,128,90,.5); animation: pulso 2.4s infinite; }
+  .sync.mal { background: var(--rojo-suave); color: var(--rojo-texto); }
+  .sync.mal i { background: var(--rojo); }
+  @keyframes pulso { 70% { box-shadow: 0 0 0 7px rgba(18,128,90,0); } 100% { box-shadow: 0 0 0 0 rgba(18,128,90,0); } }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 1.8rem 1.5rem 4rem; }
+  .vista[hidden] { display: none; }
+  .vista:not([hidden]) { animation: aparece .3s ease-out; }
+  @keyframes aparece { from { opacity: 0; transform: translateY(6px); } }
+  h1 { font-family: var(--cond); font-weight: 700; font-size: 2.4rem; margin: 0; color: var(--navy); line-height: 1.05; }
+  h1::first-letter { text-transform: uppercase; }
+  .ayuda { color: var(--gris); margin: .35rem 0 0; max-width: 72ch; line-height: 1.45; }
+  .encabezado { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.3rem; }
+  .controles { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+
+  .campo { display: flex; align-items: center; gap: .5rem; background: #fff; border: 1px solid var(--linea); border-radius: var(--r-s); padding: 0 .75rem; height: 42px; }
+  .campo input, .campo select { border: 0; outline: 0; background: none; height: 100%; min-width: 0; }
+  .campo:focus-within { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(29,46,115,.15); }
+  .campo .icono { color: var(--gris); }
+  .campo .etq { color: var(--gris); font-size: .9rem; }
+  .boton { height: 42px; padding: 0 1rem; border-radius: var(--r-s); border: 1px solid var(--navy); background: var(--navy); color: #fff; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; transition: background .15s, transform .1s; }
+  .boton:hover { background: var(--navy-hondo); }
+  .boton:active { transform: scale(.97); }
+  .boton.sec { background: #fff; color: var(--navy); }
+  .boton.sec:hover { background: var(--papel); }
+  .boton:disabled { opacity: .55; cursor: progress; }
+
+  /* ---------- Recuadros-filtro ---------- */
+  .filtros { display: grid; grid-template-columns: repeat(5, 1fr); gap: .7rem; margin-bottom: 1.2rem; }
+  .filtro { text-align: left; background: #fff; border: 1px solid var(--linea); border-radius: var(--r-m); padding: .9rem 1rem .85rem; cursor: pointer; position: relative; overflow: hidden; transition: border-color .15s, transform .15s; }
+  .filtro:hover { transform: translateY(-2px); }
+  .filtro b { display: block; font-family: var(--cond); font-size: 2.5rem; line-height: 1; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .filtro span { color: var(--gris); font-weight: 500; }
+  .filtro::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--c, var(--navy)); transform: scaleX(.25); transform-origin: left; transition: transform .3s; }
+  .filtro[aria-pressed="true"] { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); }
+  .filtro[aria-pressed="true"]::after { transform: scaleX(1); }
+  .filtro[data-f="presentes"] { --c: var(--verde); }
+  .filtro[data-f="retardos"] { --c: var(--rojo); }
+  .filtro[data-f="retardos"] b { color: var(--rojo); }
+  .filtro[data-f="salieron"] { --c: var(--navy-claro); }
+  .filtro[data-f="sin"] { --c: #A9B1C9; }
+
+  /* ---------- Tablas ---------- */
+  .tabla-env { background: #fff; border: 1px solid var(--linea); border-radius: var(--r-m); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 820px; }
+  th { text-align: left; font-size: .88rem; font-weight: 600; color: var(--gris); padding: .8rem 1rem; border-bottom: 1px solid var(--linea); background: #FAFBFD; }
+  td { padding: .7rem 1rem; border-bottom: 1px solid #EEF0F6; vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: #F8F9FC; }
+  tr.nuevo { animation: destello 2s ease-out; }
+  @keyframes destello { from { background: #FFF2C9; } }
+  tr.sep td { background: #F5F7FB; font-weight: 700; color: var(--navy); font-family: var(--cond); font-size: 1.15rem; padding: .5rem 1rem; }
+  tr.sep td::first-letter { text-transform: uppercase; }
+  .persona { display: flex; align-items: center; gap: .75rem; }
+  .avatar { width: 38px; height: 38px; flex: none; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: var(--navy-claro); color: #fff; font-family: var(--cond); font-weight: 600; font-size: .95rem; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .nom { font-weight: 600; }
+  .sub { font-size: .85rem; color: var(--gris); }
+  .num { font-family: var(--cond); font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nada { color: #A0A8BF; }
+  .horas { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .horas span { font-family: var(--cond); font-weight: 600; font-size: 1rem; padding: .1rem .5rem; border-radius: 5px; background: var(--papel); color: var(--navy); font-variant-numeric: tabular-nums; }
+  .horas span:nth-child(odd) { background: #E6E9F6; }
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .chip { display: inline-flex; align-items: center; gap: .35rem; font-size: .84rem; font-weight: 600; padding: .25rem .65rem; border-radius: 999px; white-space: nowrap; }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .chip.presente { background: var(--verde-suave); color: var(--verde); }
+  .chip.salio { background: #E6E9F6; color: var(--navy); }
+  .chip.sin_registro { background: #EFF1F6; color: var(--gris); }
+  .chip.incompleto, .chip.pend { background: var(--ambar-suave); color: var(--ambar-texto); }
+  .chip.tarde { background: var(--rojo-suave); color: var(--rojo-texto); }
+  .vacio { padding: 3rem 1rem; text-align: center; color: var(--gris); }
+  .esqueleto td div { height: 14px; border-radius: 4px; background: linear-gradient(90deg, #EEF0F6 0, #F7F8FB 50%, #EEF0F6 100%); background-size: 200% 100%; animation: brillo 1.2s infinite linear; }
+  @keyframes brillo { to { background-position: -200% 0; } }
+
+  /* ---------- Historial ---------- */
+  .rapidos { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+  .rapidos button { border: 1px solid var(--linea); background: #fff; border-radius: 999px; padding: .35rem .9rem; cursor: pointer; font-weight: 500; color: var(--gris); }
+  .rapidos button:hover { border-color: var(--navy); color: var(--navy); }
+  .rapidos button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .totales { display: flex; flex-wrap: wrap; gap: 2.5rem; background: #fff; border: 1px solid var(--linea); border-left: 5px solid var(--navy); border-radius: var(--r-m); padding: 1rem 1.4rem; margin-bottom: 1rem; }
+  .totales div b { display: block; font-family: var(--cond); font-size: 2rem; line-height: 1; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .totales div span { color: var(--gris); font-size: .92rem; }
+  .totales .alerta b { color: var(--rojo); }
+  .descargas { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+
+  /* ---------- Diálogos ---------- */
+  dialog { border: 0; border-radius: var(--r-l); padding: 0; width: min(520px, 94vw); box-shadow: 0 30px 70px rgba(18,28,75,.35); }
+  dialog::backdrop { background: rgba(18,28,75,.55); }
+  dialog[open] { animation: abre .3s cubic-bezier(.2,.9,.25,1.1); }
+  @keyframes abre { from { transform: translateY(24px) scale(.97); opacity: 0; } }
+  .dlg-cab { background: var(--navy); color: #fff; padding: 1.1rem 1.4rem; position: relative; overflow: hidden; }
+  .dlg-cab::after { content: ""; position: absolute; right: -30px; top: 0; bottom: 0; width: 90px; background: var(--rojo); transform: skewX(-24deg); }
+  .dlg-cab h2 { margin: 0; font-family: var(--cond); font-size: 1.6rem; position: relative; }
+  .dlg-cab p { margin: .2rem 0 0; opacity: .85; font-size: .95rem; position: relative; }
+  .dlg-cuerpo { padding: 1.2rem 1.4rem; display: grid; gap: .9rem; }
+  .dlg-cuerpo label { display: grid; gap: .3rem; font-weight: 600; font-size: .95rem; }
+  .dlg-cuerpo label small { font-weight: 400; color: var(--gris); }
+  .dlg-cuerpo input:not([type="checkbox"]) { height: 42px; border: 1px solid var(--linea); border-radius: var(--r-s); padding: 0 .75rem; background: #fff; }
+  .dlg-cuerpo input:focus { outline: 0; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(29,46,115,.15); }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .check { display: flex !important; align-items: center; gap: .5rem; font-weight: 500 !important; }
+  .dlg-pie { display: flex; justify-content: flex-end; gap: .6rem; padding: 0 1.4rem 1.3rem; }
+  .error { color: var(--rojo-texto); font-weight: 600; margin: 0; }
+  .error:empty { display: none; }
+  #dlgPin { width: min(400px, 94vw); }
+  #dlgPin .marca { justify-content: center; padding: 1.4rem 1rem .2rem; }
+  #dlgPin.sacude { animation: sacude .4s; }
+  @keyframes sacude { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+  .toast { position: fixed; right: 1.2rem; bottom: 1.2rem; background: var(--navy); color: #fff; padding: .85rem 1.2rem; border-radius: var(--r-m); box-shadow: 0 12px 30px rgba(0,0,0,.2); animation: toast .35s ease-out; z-index: 50; max-width: 380px; }
+  .toast.mal { background: var(--rojo-texto); }
+  @keyframes toast { from { transform: translateY(20px); opacity: 0; } }
+
+  @media (max-width: 900px) {
+    .barra-in { flex-wrap: wrap; gap: .7rem; }
+    nav { margin-left: 0; order: 3; width: 100%; overflow-x: auto; }
+    .marca small { display: none; }
+    .filtros { grid-template-columns: repeat(2, 1fr); }
+    .filtro[data-f="todas"] { grid-column: 1 / -1; }
+    .dos { grid-template-columns: 1fr; }
+    .totales { gap: 1.4rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<header class="barra">
+  <div class="barra-in">
+    <div class="marca">
+      <img src="/logo.png" alt="Tecnocontrol" onerror="this.closest('.marca').classList.add('sin-logo')">
+      <div class="texto">TECNO<span>CONTROL</span></div>
+      <small>Checadas<br>Recursos Humanos</small>
+    </div>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-vista="dia">
+        <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Día
+      </button>
+      <button role="tab" aria-selected="false" data-vista="historial">
+        <svg class="icono" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Historial
+      </button>
+      <button role="tab" aria-selected="false" data-vista="personas">
+        <svg class="icono" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M22 21a6 6 0 0 0-4-5.6"/></svg>Personas
+      </button>
+    </nav>
+    <div class="sync" id="sync" title=""><i></i><span>Revisando checador…</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= DÍA ================= -->
+  <section class="vista" id="v-dia">
+    <div class="encabezado">
+      <div>
+        <h1 id="tituloDia">Checadas de hoy</h1>
+        <p class="ayuda">Quién llegó, a qué hora y quién falta. Toca un recuadro para ver solo ese grupo. La lista se actualiza sola cada minuto.</p>
+      </div>
+      <div class="controles">
+        <button class="boton sec" id="diaAnt" type="button" aria-label="Día anterior"><svg class="icono" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+        <label class="campo"><input type="date" id="fechaDia" aria-label="Día"></label>
+        <button class="boton sec" id="diaSig" type="button" aria-label="Día siguiente"><svg class="icono" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+        <label class="campo">
+          <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" id="buscarDia" placeholder="Buscar nombre o departamento" aria-label="Buscar" size="26">
+        </label>
+      </div>
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtrar">
+      <button class="filtro" data-f="todas" aria-pressed="true"><b id="nTodas">0</b><span>Todas las personas</span></button>
+      <button class="filtro" data-f="presentes" aria-pressed="false"><b id="nPresentes">0</b><span>Están trabajando</span></button>
+      <button class="filtro" data-f="retardos" aria-pressed="false"><b id="nRetardos">0</b><span>Llegaron tarde</span></button>
+      <button class="filtro" data-f="salieron" aria-pressed="false"><b id="nSalieron">0</b><span>Ya se fueron</span></button>
+      <button class="filtro" data-f="sin" aria-pressed="false"><b id="nSin">0</b><span>No han checado</span></button>
+    </div>
+
+    <div class="tabla-env">
+      <table>
+        <thead><tr><th>Persona</th><th>Entrada</th><th>Salida</th><th>Todas sus checadas</th><th>Tiempo trabajado</th><th>Estado</th></tr></thead>
+        <tbody id="tbDia"></tbody>
+      </table>
+    </div>
+    <div class="descargas">
+      <button class="boton sec" type="button" data-descargar="dia-resumen"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar este día en Excel</button>
+    </div>
+  </section>
+
+  <!-- ================= HISTORIAL ================= -->
+  <section class="vista" id="v-historial" hidden>
+    <div class="encabezado">
+      <div>
+        <h1>Historial de checadas</h1>
+        <p class="ayuda">Elige las fechas y, si quieres, una sola persona. Luego descarga el archivo para Excel: el resumen trae una fila por persona por día; el detalle trae cada checada.</p>
+      </div>
+    </div>
+
+    <div class="rapidos" id="rapidos">
+      <button type="button" data-r="semana">Esta semana</button>
+      <button type="button" data-r="semanaPasada">Semana pasada</button>
+      <button type="button" data-r="quincena" aria-pressed="true">Esta quincena</button>
+      <button type="button" data-r="quincenaPasada">Quincena pasada</button>
+      <button type="button" data-r="mes">Este mes</button>
+      <button type="button" data-r="mesPasado">Mes pasado</button>
+    </div>
+    <div class="controles" style="margin-bottom:1rem">
+      <label class="campo"><span class="etq">Del</span><input type="date" id="hDesde"></label>
+      <label class="campo"><span class="etq">al</span><input type="date" id="hHasta"></label>
+      <label class="campo">
+        <svg class="icono" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/></svg>
+        <select id="hPersona" aria-label="Persona"><option value="">Todas las personas</option></select>
+      </label>
+      <button class="boton" id="hVer" type="button">Ver historial</button>
+    </div>
+
+    <div class="totales" id="totales" hidden>
+      <div><b id="tDias">0</b><span id="tDiasTxt">días con checadas</span></div>
+      <div><b id="tHoras">0</b><span>horas trabajadas</span></div>
+      <div class="alerta"><b id="tRetardos">0</b><span>retardos</span></div>
+      <div><b id="tIncompletos">0</b><span>días sin checada de salida</span></div>
+      <div><b id="tChecadas">0</b><span>checadas en total</span></div>
+    </div>
+
+    <div class="tabla-env">
+      <table>
+        <thead><tr><th>Persona</th><th>Entrada</th><th>Salida</th><th>Todas sus checadas</th><th>Tiempo trabajado</th><th>Estado</th></tr></thead>
+        <tbody id="tbHist"><tr><td colspan="6" class="vacio">Elige un periodo para ver las checadas.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="descargas">
+      <button class="boton" type="button" data-descargar="resumen"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar resumen en Excel</button>
+      <button class="boton sec" type="button" data-descargar="detalle"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar cada checada</button>
+    </div>
+  </section>
+
+  <!-- ================= PERSONAS ================= -->
+  <section class="vista" id="v-personas" hidden>
+    <div class="encabezado">
+      <div>
+        <h1>Personas</h1>
+        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y su hora de entrada para calcular los retardos. Las personas nuevas aparecen solas cuando checan por primera vez.</p>
+      </div>
+      <div class="controles">
+        <label class="campo">
+          <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" id="buscarP" placeholder="Buscar persona" aria-label="Buscar persona" size="22">
+        </label>
+        <button class="boton" id="btnNueva" type="button"><svg class="icono" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar persona</button>
+      </div>
+    </div>
+    <div class="tabla-env">
+      <table>
+        <thead><tr><th>Persona</th><th>No. de empleado</th><th>Puesto</th><th>Hora de entrada</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tbPersonas"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Persona -->
+<dialog id="dlgPersona">
+  <form id="formPersona">
+    <div class="dlg-cab"><h2 id="dlgTitulo">Agregar persona</h2><p>Los campos con asterisco (*) son necesarios.</p></div>
+    <div class="dlg-cuerpo">
+      <div class="dos">
+        <label>No. de empleado *<small>El mismo que tiene en el checador.</small><input type="text" name="usuario_checador" required></label>
+        <label>Hora de entrada<small>Vacío = hora general.</small><input type="time" name="hora_entrada"></label>
+      </div>
+      <label>Nombre completo *<small>Nombre, segundo nombre, primer apellido, segundo apellido.</small><input type="text" name="nombre" required autocomplete="off"></label>
+      <div class="dos">
+        <label>Departamento<input type="text" name="departamento" autocomplete="off"></label>
+        <label>Puesto<input type="text" name="puesto" autocomplete="off"></label>
+      </div>
+      <label>Foto (liga)<small>Opcional.</small><input type="url" name="foto_url"></label>
+      <label class="check"><input type="checkbox" name="activo" checked> Sigue trabajando en la empresa</label>
+      <p class="error" id="errPersona"></p>
+    </div>
+    <div class="dlg-pie">
+      <button class="boton sec" type="button" id="btnCancelar">Cancelar</button>
+      <button class="boton" type="submit" id="btnGuardar">Guardar persona</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- PIN -->
+<dialog id="dlgPin">
+  <form id="formPin">
+    <div class="marca">
+      <img src="/logo.png" alt="Tecnocontrol" onerror="this.closest('.marca').classList.add('sin-logo')">
+      <div class="texto">TECNO<span>CONTROL</span></div>
+    </div>
+    <div class="dlg-cuerpo">
+      <label>PIN de Recursos Humanos<small>Pídelo al área de Sistemas si no lo tienes.</small><input type="password" id="pin" autocomplete="current-password" required></label>
+      <p class="error" id="errPin"></p>
+    </div>
+    <div class="dlg-pie"><button class="boton" type="submit" style="width:100%;justify-content:center">Entrar</button></div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const iniciales = (n) => String(n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
+  const avatar = (p) => `<div class="avatar">${p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(p.sinNombre ? '?' : iniciales(p.nombre))}</div>`;
+  const dur = (m) => (m ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min` : '');
+  const sumar = (dia, n) => { const d = new Date(`${dia}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const fechaLarga = (dia, conAnio) => new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', ...(conAnio ? { year: 'numeric' } : {}), timeZone: 'UTC' }).format(new Date(`${dia}T12:00:00Z`));
+
+  let CFG = {};
+  let pin = sessionStorage.getItem('pinRH') || '';
+  let dia = null; let filtro = 'todas'; let personas = []; let hist = null;
+  let vistosDia = new Set();
+
+  function toast(txt, mal) {
+    const t = document.createElement('div'); t.className = `toast${mal ? ' mal' : ''}`; t.textContent = txt;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
+  }
+
+  async function api(ruta, op = {}) {
+    const r = await fetch(ruta, { ...op, headers: { 'Content-Type': 'application/json', 'x-pin': pin, ...(op.headers || {}) } });
+    if (r.status === 401) { pin = ''; sessionStorage.removeItem('pinRH'); pedirPin('El PIN no es correcto. Intenta de nuevo.'); throw new Error('pin'); }
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || 'Algo salió mal. Vuelve a intentar.'); }
+    return r;
+  }
+  const json = async (ruta, op) => (await api(ruta, op)).json();
+  const fallo = (e) => { if (e.message !== 'pin') toast(e.message, true); };
+
+  /* ---------- Números que cuentan hasta su valor ---------- */
+  function contar(el, valor) {
+    const inicio = Number(el.dataset.v || 0); el.dataset.v = valor;
+    if (inicio === valor || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = valor; return; }
+    const t0 = performance.now();
+    const paso = (t) => {
+      const k = Math.min(1, (t - t0) / 600); const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(inicio + (valor - inicio) * e);
+      if (k < 1) requestAnimationFrame(paso);
+    };
+    requestAnimationFrame(paso);
+  }
+
+  /* ---------- PIN ---------- */
+  function pedirPin(msg) {
+    const d = $('dlgPin'); $('errPin').textContent = msg || '';
+    if (!d.open) d.showModal();
+    if (msg) { d.classList.remove('sacude'); void d.offsetWidth; d.classList.add('sacude'); }
+    $('pin').value = ''; $('pin').focus();
+  }
+  $('formPin').addEventListener('submit', async (e) => {
+    e.preventDefault(); pin = $('pin').value.trim();
+    try { await api('/api/estado'); } catch (err) { if (err.message !== 'pin') $('errPin').textContent = err.message; return; }
+    sessionStorage.setItem('pinRH', pin); $('dlgPin').close(); arrancar();
+  });
+  $('dlgPin').addEventListener('cancel', (e) => e.preventDefault());
+
+  /* ---------- Pestañas ---------- */
+  document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    document.querySelectorAll('.vista').forEach((v) => { v.hidden = v.id !== `v-${b.dataset.vista}`; });
+    if (b.dataset.vista === 'personas') cargarPersonas();
+    if (b.dataset.vista === 'historial' && !hist) verHistorial();
+  }));
+
+  /* ---------- Estado del checador ---------- */
+  function hace(seg) {
+    if (seg < 90) return 'hace un momento';
+    if (seg < 3600) return `hace ${Math.round(seg / 60)} min`;
+    if (seg < 86400) return `hace ${Math.round(seg / 3600)} h`;
+    return `hace ${Math.round(seg / 86400)} días`;
+  }
+  async function revisarChecador() {
+    let d; try { d = await json('/api/estado'); } catch (e) { return; }
+    const el = $('sync'); const txt = el.querySelector('span');
+    if (!d.checadores.length) { el.className = 'sync'; txt.textContent = 'Esperando la primera checada'; el.title = 'El checador todavía no ha enviado nada. Se activa en cuanto alguien cheque.'; return; }
+    const c = d.checadores.reduce((a, x) => (!a || new Date(x.ultimo_contacto || 0) > new Date(a.ultimo_contacto || 0) ? x : a), null);
+    const seg = (new Date(d.ahora) - new Date(c.ultimo_contacto || 0)) / 1000;
+    if (c.ultimo_error) { el.className = 'sync mal'; txt.textContent = 'El checador envió algo que no se pudo leer'; el.title = c.ultimo_error; return; }
+    // El checador solo se comunica cuando alguien checa: no recibir nada un rato es normal.
+    el.className = `sync${seg < 900 ? ' ok' : ''}`;
+    txt.textContent = `Última checada recibida ${hace(seg)}`;
+    el.title = `Recibida el ${new Date(c.ultimo_contacto).toLocaleString('es-MX')}`;
+  }
+
+  /* ---------- Filas de la tabla ---------- */
+  const ESTADOS = { presente: 'Está trabajando', salio: 'Completo', incompleto: 'Falta checada de salida', sin_registro: 'No ha checado' };
+  function fila(f, nuevo) {
+    return `<tr${nuevo ? ' class="nuevo"' : ''}>
+      <td><div class="persona">${avatar(f)}<div><div class="nom">${esc(f.nombre)}</div><div class="sub">${esc(f.departamento || 'Sin departamento')}, No. ${esc(f.usuario)}</div></div></div></td>
+      <td>${f.entrada ? `<span class="num">${esc(f.entrada)}</span>` : '<span class="nada">—</span>'}</td>
+      <td>${f.salida ? `<span class="num">${esc(f.salida)}</span>` : '<span class="nada">—</span>'}</td>
+      <td>${f.checadas.length ? `<div class="horas">${f.checadas.map((h) => `<span>${esc(h)}</span>`).join('')}</div>` : '<span class="nada">—</span>'}</td>
+      <td>${f.minutosTrabajados ? esc(dur(f.minutosTrabajados)) : '<span class="nada">—</span>'}</td>
+      <td><div class="chips">
+        <span class="chip ${f.estado}"><i></i>${ESTADOS[f.estado]}</span>
+        ${f.retardo ? `<span class="chip tarde">${f.minutosTarde} min tarde</span>` : ''}
+        ${f.sinNombre ? '<span class="chip pend">Falta su nombre</span>' : ''}
+      </div></td></tr>`;
+  }
+  const esqueleto = (n, c) => Array.from({ length: n }, () => `<tr class="esqueleto">${'<td><div></div></td>'.repeat(c)}</tr>`).join('');
+
+  /* ---------- Día ---------- */
+  let datosDia = null;
+  async function cargarDia(silencioso) {
+    if (!silencioso) $('tbDia').innerHTML = esqueleto(6, 6);
+    try { datosDia = await json(`/api/resumen?desde=${dia}&hasta=${dia}`); } catch (e) { fallo(e); return; }
+    $('tituloDia').textContent = dia === CFG.hoy ? 'Checadas de hoy' : `Checadas del ${fechaLarga(dia, true)}`;
+    $('diaSig').disabled = dia >= CFG.hoy;
+    const c = datosDia.conteos;
+    contar($('nTodas'), c.personas); contar($('nPresentes'), c.presentes); contar($('nRetardos'), c.retardos);
+    contar($('nSalieron'), c.salieron); contar($('nSin'), c.sinRegistro);
+    pintarDia(silencioso);
+  }
+  function pintarDia(marcarNuevos) {
+    if (!datosDia) return;
+    const q = norm($('buscarDia').value);
+    const lista = datosDia.filas.filter((f) => {
+      if (filtro === 'presentes' && f.estado !== 'presente') return false;
+      if (filtro === 'retardos' && !f.retardo) return false;
+      if (filtro === 'salieron' && f.estado !== 'salio') return false;
+      if (filtro === 'sin' && f.estado !== 'sin_registro') return false;
+      return !q || norm(`${f.nombre} ${f.departamento} ${f.usuario}`).includes(q);
+    });
+    const vistos = new Set(datosDia.filas.map((f) => `${f.usuario}|${f.checadas.length}`));
+    $('tbDia').innerHTML = lista.length
+      ? lista.map((f) => fila(f, marcarNuevos && f.checadas.length && !vistosDia.has(`${f.usuario}|${f.checadas.length}`))).join('')
+      : `<tr><td colspan="6" class="vacio">${q ? 'Nadie coincide con tu búsqueda. Prueba con otra palabra.' : 'No hay personas en este grupo.'}</td></tr>`;
+    vistosDia = vistos;
+  }
+  document.querySelectorAll('.filtro').forEach((b) => b.addEventListener('click', () => {
+    filtro = b.dataset.f;
+    document.querySelectorAll('.filtro').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    pintarDia();
+  }));
+  $('buscarDia').addEventListener('input', () => pintarDia());
+  $('fechaDia').addEventListener('change', () => { if ($('fechaDia').value) { dia = $('fechaDia').value; vistosDia = new Set(); cargarDia(); } });
+  $('diaAnt').addEventListener('click', () => { dia = sumar(dia, -1); $('fechaDia').value = dia; vistosDia = new Set(); cargarDia(); });
+  $('diaSig').addEventListener('click', () => { if (dia < CFG.hoy) { dia = sumar(dia, 1); $('fechaDia').value = dia; vistosDia = new Set(); cargarDia(); } });
+
+  /* ---------- Historial ---------- */
+  function rango(tipo) {
+    const hoy = CFG.hoy; const [a, m, d] = hoy.split('-').map(Number);
+    const p2 = (n) => String(n).padStart(2, '0');
+    const finMes = (y, mm) => new Date(Date.UTC(y, mm, 0)).getUTCDate();
+    const dow = (new Date(`${hoy}T12:00:00Z`).getUTCDay() + 6) % 7; // lunes = 0
+    switch (tipo) {
+      case 'semana': return [sumar(hoy, -dow), hoy];
+      case 'semanaPasada': return [sumar(hoy, -dow - 7), sumar(hoy, -dow - 1)];
+      case 'quincena': return d <= 15 ? [`${a}-${p2(m)}-01`, hoy] : [`${a}-${p2(m)}-16`, hoy];
+      case 'quincenaPasada': {
+        if (d > 15) return [`${a}-${p2(m)}-01`, `${a}-${p2(m)}-15`];
+        const y = m === 1 ? a - 1 : a; const mm = m === 1 ? 12 : m - 1;
+        return [`${y}-${p2(mm)}-16`, `${y}-${p2(mm)}-${finMes(y, mm)}`];
+      }
+      case 'mes': return [`${a}-${p2(m)}-01`, hoy];
+      case 'mesPasado': { const y = m === 1 ? a - 1 : a; const mm = m === 1 ? 12 : m - 1; return [`${y}-${p2(mm)}-01`, `${y}-${p2(mm)}-${finMes(y, mm)}`]; }
+      default: return [hoy, hoy];
+    }
+  }
+  $('rapidos').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    $('rapidos').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    const [de, a] = rango(b.dataset.r); $('hDesde').value = de; $('hHasta').value = a; verHistorial();
+  });
+  ['hDesde', 'hHasta'].forEach((id) => $(id).addEventListener('change', () => $('rapidos').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'false'))));
+  $('hPersona').addEventListener('change', verHistorial);
+  $('hVer').addEventListener('click', verHistorial);
+
+  function paramsHist() {
+    const p = new URLSearchParams({ desde: $('hDesde').value, hasta: $('hHasta').value });
+    if ($('hPersona').value) p.set('usuario', $('hPersona').value);
+    return p;
+  }
+  async function verHistorial() {
+    if (!$('hDesde').value || !$('hHasta').value) { const [de, a] = rango('quincena'); $('hDesde').value = de; $('hHasta').value = a; }
+    $('tbHist').innerHTML = esqueleto(8, 6);
+    try { hist = await json(`/api/resumen?${paramsHist()}`); } catch (e) { fallo(e); $('tbHist').innerHTML = '<tr><td colspan="6" class="vacio">No se pudo cargar el historial.</td></tr>'; return; }
+    const filas = hist.filas.filter((f) => f.estado !== 'sin_registro');
+    const c = hist.conteos;
+    $('totales').hidden = false;
+    const dias = $('hPersona').value ? filas.length : new Set(filas.map((f) => f.dia)).size;
+    contar($('tDias'), dias); $('tDiasTxt').textContent = $('hPersona').value ? 'días trabajados' : 'días con checadas';
+    $('tHoras').textContent = (c.minutos / 60).toLocaleString('es-MX', { maximumFractionDigits: 1 });
+    contar($('tRetardos'), c.retardos); contar($('tIncompletos'), c.incompletos); contar($('tChecadas'), c.checadas);
+    if (!filas.length) { $('tbHist').innerHTML = '<tr><td colspan="6" class="vacio">No hay checadas en estas fechas.</td></tr>'; return; }
+    let html = ''; let ultimo = null;
+    for (const f of filas) {
+      if (f.dia !== ultimo) { html += `<tr class="sep"><td colspan="6">${esc(fechaLarga(f.dia, true))}</td></tr>`; ultimo = f.dia; }
+      html += fila(f);
+    }
+    $('tbHist').innerHTML = html;
+  }
+
+  /* ---------- Descargas ---------- */
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-descargar]'); if (!b) return;
+    const t = b.dataset.descargar;
+    const p = t === 'dia-resumen' ? new URLSearchParams({ desde: dia, hasta: dia }) : paramsHist();
+    p.set('tipo', t === 'detalle' ? 'detalle' : 'resumen');
+    b.disabled = true;
+    try {
+      const r = await api(`/api/descargar?${p}`);
+      const nombre = (r.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/);
+      const url = URL.createObjectURL(await r.blob());
+      const a = document.createElement('a'); a.href = url; a.download = nombre ? nombre[1] : 'checadas.csv';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast('Archivo descargado. Ábrelo con Excel.');
+    } catch (err) { fallo(err); }
+    b.disabled = false;
+  });
+
+  /* ---------- Personas ---------- */
+  async function cargarPersonas() {
+    try { personas = await json('/api/personas'); } catch (e) { fallo(e); return; }
+    pintarPersonas(); llenarSelector();
+  }
+  function llenarSelector() {
+    const sel = $('hPersona'); const v = sel.value;
+    sel.innerHTML = '<option value="">Todas las personas</option>' + personas.map((p) => `<option value="${esc(p.usuario_checador)}">${esc(p.nombre)}</option>`).join('');
+    sel.value = v;
+  }
+  function pintarPersonas() {
+    const q = norm($('buscarP').value);
+    const lista = personas.filter((p) => !q || norm(`${p.nombre} ${p.departamento} ${p.puesto} ${p.usuario_checador}`).includes(q));
+    $('tbPersonas').innerHTML = lista.length ? lista.map((p) => {
+      const sinNombre = !p.nombre || p.nombre.startsWith('Persona con ID ');
+      return `<tr>
+        <td><div class="persona">${avatar({ nombre: p.nombre, foto: p.foto_url, sinNombre })}<div><div class="nom">${esc(p.nombre)}</div><div class="sub">${esc(p.departamento || 'Sin departamento')}</div></div></div></td>
+        <td><span class="num">${esc(p.usuario_checador)}</span></td>
+        <td>${p.puesto ? esc(p.puesto) : '<span class="nada">—</span>'}</td>
+        <td>${p.hora_entrada ? `<span class="num">${esc(String(p.hora_entrada).slice(0, 5))}</span>` : `<span class="nada">General (${esc(CFG.horaEntrada)})</span>`}</td>
+        <td>${sinNombre ? '<span class="chip pend">Falta su nombre</span>' : p.activo ? '<span class="chip presente"><i></i>Activa</span>' : '<span class="chip sin_registro"><i></i>Ya no trabaja aquí</span>'}</td>
+        <td><button class="boton sec" type="button" data-editar="${esc(p.usuario_checador)}">Editar</button></td></tr>`;
+    }).join('') : `<tr><td colspan="6" class="vacio">${q ? 'Nadie coincide con tu búsqueda.' : 'Todavía no hay personas. Aparecerán solas cuando alguien cheque.'}</td></tr>`;
+  }
+  $('buscarP').addEventListener('input', pintarPersonas);
+  $('tbPersonas').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-editar]'); if (b) abrirPersona(personas.find((p) => p.usuario_checador === b.dataset.editar));
+  });
+  $('btnNueva').addEventListener('click', () => abrirPersona(null));
+  $('btnCancelar').addEventListener('click', () => $('dlgPersona').close());
+
+  function abrirPersona(p) {
+    const f = $('formPersona'); f.reset(); $('errPersona').textContent = '';
+    $('dlgTitulo').textContent = p ? 'Editar persona' : 'Agregar persona';
+    f.usuario_checador.readOnly = !!p;
+    if (p) {
+      f.usuario_checador.value = p.usuario_checador;
+      f.nombre.value = p.nombre.startsWith('Persona con ID ') ? '' : p.nombre;
+      f.departamento.value = p.departamento || ''; f.puesto.value = p.puesto || '';
+      f.foto_url.value = p.foto_url || ''; f.hora_entrada.value = p.hora_entrada ? String(p.hora_entrada).slice(0, 5) : '';
+      f.activo.checked = p.activo !== false;
+    }
+    $('dlgPersona').showModal(); (p ? f.nombre : f.usuario_checador).focus();
+  }
+  $('formPersona').addEventListener('submit', async (e) => {
+    e.preventDefault(); const f = e.target;
+    $('btnGuardar').disabled = true;
+    try {
+      await json('/api/personas', { method: 'POST', body: JSON.stringify({
+        usuario_checador: f.usuario_checador.value.trim(), nombre: f.nombre.value.trim(),
+        departamento: f.departamento.value.trim(), puesto: f.puesto.value.trim(),
+        foto_url: f.foto_url.value.trim(), hora_entrada: f.hora_entrada.value, activo: f.activo.checked,
+      }) });
+      $('dlgPersona').close(); toast('Persona guardada.');
+      cargarPersonas(); cargarDia(true);
+    } catch (err) { if (err.message !== 'pin') $('errPersona').textContent = err.message; }
+    $('btnGuardar').disabled = false;
+  });
+
+  /* ---------- Arranque ---------- */
+  async function arrancar() {
+    if (!CFG.hoy) CFG = await fetch('/api/config').then((r) => r.json());
+    if (!pin) return pedirPin();
+    dia = dia || CFG.hoy;
+    $('fechaDia').value = dia; $('fechaDia').max = CFG.hoy; $('hDesde').max = CFG.hoy; $('hHasta').max = CFG.hoy;
+    await Promise.all([cargarDia(), revisarChecador(), cargarPersonas()]);
+    if (!arrancar.reloj) {
+      arrancar.reloj = setInterval(() => {
+        if (document.hidden || !pin) return;
+        revisarChecador();
+        if (dia === CFG.hoy && !$('v-dia').hidden) cargarDia(true);
+      }, 60000);
+    }
+  }
+  arrancar().catch(() => toast('No se pudo abrir la página. Revisa tu internet.', true));
+})();
+</script>
+</body>
+</html>

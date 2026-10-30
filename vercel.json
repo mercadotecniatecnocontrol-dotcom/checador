@@ -1,0 +1,7 @@
+{
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/hk/:token", "destination": "/api/hikvision?token=:token" }
+  ]
+}
