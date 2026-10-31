@@ -6,15 +6,24 @@ module.exports = manejar(async (req, res) => {
   const { desde, hasta } = leerRango(req.query);
   const usuario = req.query.usuario ? String(req.query.usuario) : null;
   const { filas } = await resumen({ desde, hasta, usuario, conFaltas: desde === hasta });
+  const cuenta = (fn) => filas.filter(fn).length;
+  const suma = (fn) => filas.reduce((n, f) => n + (fn(f) || 0), 0);
   const conteos = {
     personas: new Set(filas.map((f) => f.usuario)).size,
-    presentes: filas.filter((f) => f.estado === 'presente').length,
-    retardos: filas.filter((f) => f.retardo).length,
-    salieron: filas.filter((f) => f.estado === 'salio').length,
-    sinRegistro: filas.filter((f) => f.estado === 'sin_registro').length,
-    incompletos: filas.filter((f) => f.estado === 'incompleto').length,
-    checadas: filas.reduce((n, f) => n + f.checadas.length, 0),
-    minutos: filas.reduce((n, f) => n + f.minutosTrabajados, 0),
+    presentes: cuenta((f) => f.estado === 'presente'),
+    comida: cuenta((f) => f.estado === 'comida'),
+    retardos: cuenta((f) => f.retardo),
+    salieron: cuenta((f) => f.estado === 'salio'),
+    sinRegistro: cuenta((f) => f.estado === 'sin_registro'),
+    incompletos: cuenta((f) => f.estado === 'incompleto'),
+    comidasExcedidas: cuenta((f) => f.comida && f.comida.exceso > 0 && !f.comida.enCurso),
+    sinComida: cuenta((f) => f.sinComida),
+    salidasAnticipadas: cuenta((f) => f.salidaAnticipada > 0),
+    checadas: suma((f) => f.checadas.length),
+    minutos: suma((f) => f.minutosTrabajados),
+    debe: suma((f) => f.debe),
+    aFavor: suma((f) => f.aFavor),
+    saldo: suma((f) => f.saldo),
   };
   res.json({ desde, hasta, conteos, filas });
 });
