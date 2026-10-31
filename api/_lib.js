@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const CFG = {
   tz: process.env.ZONA_HORARIA || 'America/Chihuahua',
   horaEntrada: process.env.HORA_ENTRADA || '08:30',
+  horaSabado: process.env.HORA_ENTRADA_SABADO || '09:00',
   tolerancia: Number(process.env.TOLERANCIA_MIN || 10),
   pin: process.env.PIN_RH || '',
 };
@@ -115,6 +116,14 @@ function vistaPersona(p, usuario) {
   };
 }
 
+const esSabado = (dia) => new Date(`${dia}T12:00:00Z`).getUTCDay() === 6;
+
+// Sábado: hora de sábado para todos. Lunes a viernes: la de la persona o la general.
+function horarioDe(p, dia) {
+  if (esSabado(dia)) return CFG.horaSabado;
+  return p && p.hora_entrada ? String(p.hora_entrada).slice(0, 5) : CFG.horaEntrada;
+}
+
 const porNombre = (a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
 
 /*
@@ -136,7 +145,7 @@ async function resumen({ desde, hasta, usuario, conFaltas }) {
   for (const [clave, fechas] of grupos) {
     const [dia, u] = clave.split('|');
     const p = personas.get(u);
-    const horario = p && p.hora_entrada ? String(p.hora_entrada).slice(0, 5) : CFG.horaEntrada;
+    const horario = horarioDe(p, dia);
     const primera = fechas[0];
     const tarde = aMin(horaLocal(primera)) - aMin(horario);
     const retardo = tarde > CFG.tolerancia;
@@ -165,7 +174,7 @@ async function resumen({ desde, hasta, usuario, conFaltas }) {
       if (usuario && p.usuario_checador !== usuario) continue;
       filas.push({
         dia: desde, ...vistaPersona(p, p.usuario_checador),
-        horario: p.hora_entrada ? String(p.hora_entrada).slice(0, 5) : CFG.horaEntrada,
+        horario: horarioDe(p, desde),
         checadas: [], entrada: null, salida: null, minutosTrabajados: 0, retardo: false, minutosTarde: 0, estado: 'sin_registro',
       });
     }
