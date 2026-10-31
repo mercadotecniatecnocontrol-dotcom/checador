@@ -243,7 +243,7 @@
       </table>
     </div>
     <div class="descargas">
-      <button class="boton sec" type="button" data-descargar="dia-resumen"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar este día en Excel</button>
+      <button class="boton sec" type="button" data-descargar="dia-reporte"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar este día en Excel</button>
     </div>
   </section>
 
@@ -252,7 +252,7 @@
     <div class="encabezado">
       <div>
         <h1>Historial de checadas</h1>
-        <p class="ayuda">Elige las fechas y, si quieres, una sola persona. Luego descarga el archivo para Excel: el resumen trae una fila por persona por día y al final los totales por persona (tiempo que deben y a favor); el detalle trae cada checada.</p>
+        <p class="ayuda">Elige las fechas y, si quieres, una sola persona. Luego descarga el archivo para Excel: el reporte trae 4 hojas como el del checador (Turnos, Estadístico, Asistencia y Excepciones) con faltas, retardos, comida y saldo de tiempo; «cada checada» es la lista completa de checadas.</p>
       </div>
     </div>
 
@@ -291,7 +291,7 @@
       </table>
     </div>
     <div class="descargas">
-      <button class="boton" type="button" data-descargar="resumen"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar resumen en Excel</button>
+      <button class="boton" type="button" data-descargar="reporte"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar reporte en Excel</button>
       <button class="boton sec" type="button" data-descargar="detalle"><svg class="icono" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar cada checada</button>
     </div>
   </section>
@@ -301,19 +301,24 @@
     <div class="encabezado">
       <div>
         <h1>Personas</h1>
-        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y, solo si es diferente a la general, su hora de entrada de lunes a viernes. Los sábados todos entran a la misma hora (<b id="txtSabado">09:00</b>). Las personas nuevas aparecen solas cuando checan por primera vez.</p>
+        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y, solo si es diferente a la general, su hora de entrada de lunes a viernes. Los sábados todos entran a la misma hora (<b id="txtSabado">09:00</b>). Ponle a cada quien su <b>fecha de alta</b> (cuando empezó) y, si se va, su <b>fecha de baja</b>: así no se le cuentan faltas antes de entrar ni después de salir. Las personas nuevas aparecen solas cuando checan por primera vez.</p>
       </div>
       <div class="controles">
         <label class="campo">
           <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="search" id="buscarP" placeholder="Buscar persona" aria-label="Buscar persona" size="22">
         </label>
+        <label class="campo"><select id="filtroP" aria-label="Mostrar">
+          <option value="activas">Trabajando actualmente</option>
+          <option value="bajas">Dadas de baja</option>
+          <option value="todas">Todas</option>
+        </select></label>
         <button class="boton" id="btnNueva" type="button"><svg class="icono" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar persona</button>
       </div>
     </div>
     <div class="tabla-env">
       <table>
-        <thead><tr><th>Persona</th><th>No. de empleado</th><th>Puesto</th><th>Entrada lunes a viernes</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>Persona</th><th>No. de empleado</th><th>Puesto</th><th>Entrada lunes a viernes</th><th>Fecha de alta</th><th>Fecha de baja</th><th>Estado</th><th></th></tr></thead>
         <tbody id="tbPersonas"></tbody>
       </table>
     </div>
@@ -335,7 +340,10 @@
         <label>Puesto<input type="text" name="puesto" autocomplete="off"></label>
       </div>
       <label>Foto (liga)<small>Opcional.</small><input type="url" name="foto_url"></label>
-      <label class="check"><input type="checkbox" name="activo" checked> Sigue trabajando en la empresa</label>
+      <div class="dos">
+        <label>Fecha de alta<small>Cuando empezó a trabajar.</small><input type="date" name="fecha_alta"></label>
+        <label>Fecha de baja<small>Vacío = sigue trabajando.</small><input type="date" name="fecha_baja"></label>
+      </div>
       <p class="error" id="errPersona"></p>
     </div>
     <div class="dlg-pie">
@@ -594,14 +602,16 @@
   document.addEventListener('click', async (e) => {
     const b = e.target.closest('[data-descargar]'); if (!b) return;
     const t = b.dataset.descargar;
-    const p = t === 'dia-resumen' ? new URLSearchParams({ desde: dia, hasta: dia }) : paramsHist();
-    p.set('tipo', t === 'detalle' ? 'detalle' : 'resumen');
+    const p = t === 'dia-reporte' ? new URLSearchParams({ desde: dia, hasta: dia }) : paramsHist();
+    let ruta;
+    if (t === 'detalle') { p.set('tipo', 'detalle'); ruta = `/api/descargar?${p}`; } else ruta = `/api/reporte?${p}`;
     b.disabled = true;
+    toast('Preparando el archivo…');
     try {
-      const r = await api(`/api/descargar?${p}`);
+      const r = await api(ruta);
       const nombre = (r.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/);
       const url = URL.createObjectURL(await r.blob());
-      const a = document.createElement('a'); a.href = url; a.download = nombre ? nombre[1] : 'checadas.csv';
+      const a = document.createElement('a'); a.href = url; a.download = nombre ? nombre[1] : 'reporte.xlsx';
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
       toast('Archivo descargado. Ábrelo con Excel.');
     } catch (err) { fallo(err); }
@@ -618,20 +628,32 @@
     sel.innerHTML = '<option value="">Todas las personas</option>' + personas.map((p) => `<option value="${esc(p.usuario_checador)}">${esc(p.nombre)}</option>`).join('');
     sel.value = v;
   }
+  const fechaCorta = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('/') : '');
+  const dadoDeBaja = (p) => (p.fecha_baja ? String(p.fecha_baja).slice(0, 10) < CFG.hoy : p.activo === false);
   function pintarPersonas() {
     const q = norm($('buscarP').value);
-    const lista = personas.filter((p) => !q || norm(`${p.nombre} ${p.departamento} ${p.puesto} ${p.usuario_checador}`).includes(q));
+    const ver = $('filtroP').value;
+    const lista = personas.filter((p) => {
+      if (ver === 'activas' && dadoDeBaja(p)) return false;
+      if (ver === 'bajas' && !dadoDeBaja(p)) return false;
+      return !q || norm(`${p.nombre} ${p.departamento} ${p.puesto} ${p.usuario_checador}`).includes(q);
+    });
     $('tbPersonas').innerHTML = lista.length ? lista.map((p) => {
       const sinNombre = !p.nombre || p.nombre.startsWith('Persona con ID ');
+      const baja = dadoDeBaja(p);
+      const porSalir = p.fecha_baja && !baja;
       return `<tr>
         <td><div class="persona">${avatar({ nombre: p.nombre, foto: p.foto_url, sinNombre })}<div><div class="nom">${esc(p.nombre)}</div><div class="sub">${esc(p.departamento || 'Sin departamento')}</div></div></div></td>
         <td><span class="num">${esc(p.usuario_checador)}</span></td>
         <td>${p.puesto ? esc(p.puesto) : '<span class="nada">—</span>'}</td>
         <td>${p.hora_entrada ? `<span class="num">${esc(String(p.hora_entrada).slice(0, 5))}</span>` : `<span class="nada">General (${esc(CFG.horaEntrada)})</span>`}</td>
-        <td>${sinNombre ? '<span class="chip pend">Falta su nombre</span>' : p.activo ? '<span class="chip presente"><i></i>Activa</span>' : '<span class="chip sin_registro"><i></i>Ya no trabaja aquí</span>'}</td>
+        <td>${p.fecha_alta ? `<span class="num">${esc(fechaCorta(p.fecha_alta))}</span>` : '<span class="chip pend">Sin fecha</span>'}</td>
+        <td>${p.fecha_baja ? `<span class="num">${esc(fechaCorta(p.fecha_baja))}</span>` : '<span class="nada">—</span>'}</td>
+        <td><div class="chips">${sinNombre ? '<span class="chip pend">Falta su nombre</span>' : ''}${baja ? '<span class="chip sin_registro"><i></i>Dado de baja</span>' : porSalir ? '<span class="chip pend"><i></i>Baja programada</span>' : '<span class="chip presente"><i></i>Trabajando</span>'}</div></td>
         <td><button class="boton sec" type="button" data-editar="${esc(p.usuario_checador)}">Editar</button></td></tr>`;
-    }).join('') : `<tr><td colspan="6" class="vacio">${q ? 'Nadie coincide con tu búsqueda.' : 'Todavía no hay personas. Aparecerán solas cuando alguien cheque.'}</td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="vacio">${q ? 'Nadie coincide con tu búsqueda.' : ver === 'bajas' ? 'No hay personas dadas de baja.' : 'Todavía no hay personas. Aparecerán solas cuando alguien cheque.'}</td></tr>`;
   }
+  $('filtroP').addEventListener('change', pintarPersonas);
   $('buscarP').addEventListener('input', pintarPersonas);
   $('tbPersonas').addEventListener('click', (e) => {
     const b = e.target.closest('[data-editar]'); if (b) abrirPersona(personas.find((p) => p.usuario_checador === b.dataset.editar));
@@ -648,7 +670,8 @@
       f.nombre.value = p.nombre.startsWith('Persona con ID ') ? '' : p.nombre;
       f.departamento.value = p.departamento || ''; f.puesto.value = p.puesto || '';
       f.foto_url.value = p.foto_url || ''; f.hora_entrada.value = p.hora_entrada ? String(p.hora_entrada).slice(0, 5) : '';
-      f.activo.checked = p.activo !== false;
+      f.fecha_alta.value = p.fecha_alta ? String(p.fecha_alta).slice(0, 10) : '';
+      f.fecha_baja.value = p.fecha_baja ? String(p.fecha_baja).slice(0, 10) : '';
     }
     $('dlgPersona').showModal(); (p ? f.nombre : f.usuario_checador).focus();
   }
@@ -659,7 +682,7 @@
       await json('/api/personas', { method: 'POST', body: JSON.stringify({
         usuario_checador: f.usuario_checador.value.trim(), nombre: f.nombre.value.trim(),
         departamento: f.departamento.value.trim(), puesto: f.puesto.value.trim(),
-        foto_url: f.foto_url.value.trim(), hora_entrada: f.hora_entrada.value, activo: f.activo.checked,
+        foto_url: f.foto_url.value.trim(), hora_entrada: f.hora_entrada.value, fecha_alta: f.fecha_alta.value, fecha_baja: f.fecha_baja.value,
       }) });
       $('dlgPersona').close(); toast('Persona guardada.');
       cargarPersonas(); cargarDia(true);
