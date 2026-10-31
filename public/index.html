@@ -71,7 +71,7 @@
   .boton:disabled { opacity: .55; cursor: progress; }
 
   /* ---------- Recuadros-filtro ---------- */
-  .filtros { display: grid; grid-template-columns: repeat(5, 1fr); gap: .7rem; margin-bottom: 1.2rem; }
+  .filtros { display: grid; grid-template-columns: repeat(6, 1fr); gap: .7rem; margin-bottom: 1.2rem; }
   .filtro { text-align: left; background: #fff; border: 1px solid var(--linea); border-radius: var(--r-m); padding: .9rem 1rem .85rem; cursor: pointer; position: relative; overflow: hidden; transition: border-color .15s, transform .15s; }
   .filtro:hover { transform: translateY(-2px); }
   .filtro b { display: block; font-family: var(--cond); font-size: 2.5rem; line-height: 1; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
@@ -84,10 +84,23 @@
   .filtro[data-f="retardos"] b { color: var(--rojo); }
   .filtro[data-f="salieron"] { --c: var(--navy-claro); }
   .filtro[data-f="sin"] { --c: #A9B1C9; }
+  .filtro[data-f="comida"] { --c: #E0A21B; }
+  .chip.comida { background: var(--ambar-suave); color: var(--ambar-texto); }
+  .comida-c .num { font-size: 1.1rem; }
+  .comida-c .sub.mal { color: var(--rojo-texto); font-weight: 600; }
+  .saldo { font-family: var(--cond); font-weight: 600; font-size: 1.15rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .saldo small { display: block; font-family: var(--letra); font-weight: 500; font-size: .78rem; color: var(--gris); }
+  .saldo.debe { color: var(--rojo-texto); }
+  .saldo.favor { color: var(--verde); }
+  .saldo.cero { color: var(--navy); }
+  .totales .favor b { color: var(--verde); }
+  .horario { display: inline-flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin-top: .6rem; font-size: .92rem; color: var(--navy); }
+  .horario span { display: inline-flex; align-items: center; gap: .35rem; }
+  .horario b { font-weight: 600; }
 
   /* ---------- Tablas ---------- */
   .tabla-env { background: #fff; border: 1px solid var(--linea); border-radius: var(--r-m); overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 820px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1180px; }
   th { text-align: left; font-size: .88rem; font-weight: 600; color: var(--gris); padding: .8rem 1rem; border-bottom: 1px solid var(--linea); background: #FAFBFD; }
   td { padding: .7rem 1rem; border-bottom: 1px solid #EEF0F6; vertical-align: middle; }
   tr:last-child td { border-bottom: 0; }
@@ -201,6 +214,7 @@
       <div>
         <h1 id="tituloDia">Checadas de hoy</h1>
         <p class="ayuda">Quién llegó, a qué hora y quién falta. Toca un recuadro para ver solo ese grupo. La lista se actualiza sola cada minuto.</p>
+        <div class="horario" id="txtHorario"></div>
       </div>
       <div class="controles">
         <button class="boton sec" id="diaAnt" type="button" aria-label="Día anterior"><svg class="icono" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -216,6 +230,7 @@
     <div class="filtros" role="group" aria-label="Filtrar">
       <button class="filtro" data-f="todas" aria-pressed="true"><b id="nTodas">0</b><span>Todas las personas</span></button>
       <button class="filtro" data-f="presentes" aria-pressed="false"><b id="nPresentes">0</b><span>Están trabajando</span></button>
+      <button class="filtro" data-f="comida" aria-pressed="false"><b id="nComida">0</b><span>En su hora de comida</span></button>
       <button class="filtro" data-f="retardos" aria-pressed="false"><b id="nRetardos">0</b><span>Llegaron tarde</span></button>
       <button class="filtro" data-f="salieron" aria-pressed="false"><b id="nSalieron">0</b><span>Ya se fueron</span></button>
       <button class="filtro" data-f="sin" aria-pressed="false"><b id="nSin">0</b><span>No han checado</span></button>
@@ -223,7 +238,7 @@
 
     <div class="tabla-env">
       <table>
-        <thead><tr><th>Persona</th><th>Entrada</th><th>Salida</th><th>Todas sus checadas</th><th>Tiempo trabajado</th><th>Estado</th></tr></thead>
+        <thead><tr><th>Persona</th><th>Entrada</th><th>Comida</th><th>Salida</th><th>Tiempo trabajado</th><th>Saldo del día</th><th>Todas sus checadas</th><th>Estado</th></tr></thead>
         <tbody id="tbDia"></tbody>
       </table>
     </div>
@@ -237,7 +252,7 @@
     <div class="encabezado">
       <div>
         <h1>Historial de checadas</h1>
-        <p class="ayuda">Elige las fechas y, si quieres, una sola persona. Luego descarga el archivo para Excel: el resumen trae una fila por persona por día; el detalle trae cada checada.</p>
+        <p class="ayuda">Elige las fechas y, si quieres, una sola persona. Luego descarga el archivo para Excel: el resumen trae una fila por persona por día y al final los totales por persona (tiempo que deben y a favor); el detalle trae cada checada.</p>
       </div>
     </div>
 
@@ -263,14 +278,16 @@
       <div><b id="tDias">0</b><span id="tDiasTxt">días con checadas</span></div>
       <div><b id="tHoras">0</b><span>horas trabajadas</span></div>
       <div class="alerta"><b id="tRetardos">0</b><span>retardos</span></div>
-      <div><b id="tIncompletos">0</b><span>días sin checada de salida</span></div>
-      <div><b id="tChecadas">0</b><span>checadas en total</span></div>
+      <div class="alerta"><b id="tDebe">0:00</b><span>tiempo que deben</span></div>
+      <div class="favor"><b id="tFavor">0:00</b><span>tiempo a favor</span></div>
+      <div><b id="tSaldo">0:00</b><span id="tSaldoTxt">saldo del periodo</span></div>
+      <div class="alerta"><b id="tIncompletos">0</b><span>días sin checada de salida</span></div>
     </div>
 
     <div class="tabla-env">
       <table>
-        <thead><tr><th>Persona</th><th>Entrada</th><th>Salida</th><th>Todas sus checadas</th><th>Tiempo trabajado</th><th>Estado</th></tr></thead>
-        <tbody id="tbHist"><tr><td colspan="6" class="vacio">Elige un periodo para ver las checadas.</td></tr></tbody>
+        <thead><tr><th>Persona</th><th>Entrada</th><th>Comida</th><th>Salida</th><th>Tiempo trabajado</th><th>Saldo del día</th><th>Todas sus checadas</th><th>Estado</th></tr></thead>
+        <tbody id="tbHist"><tr><td colspan="8" class="vacio">Elige un periodo para ver las checadas.</td></tr></tbody>
       </table>
     </div>
     <div class="descargas">
@@ -284,7 +301,7 @@
     <div class="encabezado">
       <div>
         <h1>Personas</h1>
-        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y su hora de entrada de lunes a viernes para calcular los retardos. Los sábados se usa una sola hora para todos: <b id="txtSabado">09:00</b>. Las personas nuevas aparecen solas cuando checan por primera vez.</p>
+        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y, solo si es diferente a la general, su hora de entrada de lunes a viernes. Los sábados todos entran a la misma hora (<b id="txtSabado">09:00</b>). Las personas nuevas aparecen solas cuando checan por primera vez.</p>
       </div>
       <div class="controles">
         <label class="campo">
@@ -430,17 +447,47 @@
   }
 
   /* ---------- Filas de la tabla ---------- */
-  const ESTADOS = { presente: 'Está trabajando', salio: 'Completo', incompleto: 'Falta checada de salida', sin_registro: 'No ha checado' };
+  const ESTADOS = { presente: 'Está trabajando', comida: 'En su hora de comida', salio: 'Ya se fue', incompleto: 'Falta checada de salida', sin_registro: 'No ha checado' };
+  const hm = (m) => `${Math.floor(Math.abs(m) / 60)}:${String(Math.abs(m) % 60).padStart(2, '0')}`;
+  function celdaSaldo(f) {
+    if (f.saldo == null) {
+      if (f.estado === 'incompleto') return '<span class="saldo debe">Sin calcular<small>falta la salida</small></span>';
+      return '<span class="nada">—</span>';
+    }
+    if (f.saldo < 0) return `<span class="saldo debe">Debe ${hm(f.saldo)}<small>horas:minutos</small></span>`;
+    if (f.saldo > 0) return `<span class="saldo favor">+${hm(f.saldo)} a favor<small>horas:minutos</small></span>`;
+    return '<span class="saldo cero">Al corriente</span>';
+  }
+  function celdaComida(f) {
+    const c = f.comida;
+    if (!c) {
+      if (f.sinComida) return '<span class="nada">No checó<br>(se descuenta 1 h)</span>';
+      if (f.tipoDia === 'sabado' && f.checadas.length) return f.minutosFuera ? `<span class="sub mal" style="color:var(--rojo-texto)">Salió ${f.minutosFuera} min</span>` : '<span class="nada">Sábado sin comida</span>';
+      return '<span class="nada">—</span>';
+    }
+    const detalle = c.enCurso ? `Lleva ${esc(dur(c.minutos) || '0 min')}` : esc(dur(c.minutos) || `${c.minutos} min`);
+    const veces = c.salidas > 1 ? ` (${c.salidas} salidas)` : '';
+    return `<div class="comida-c"><span class="num">${esc(c.salida)} – ${c.regreso ? esc(c.regreso) : '…'}</span><div class="sub${c.exceso ? ' mal' : ''}">${detalle}${veces}</div></div>`;
+  }
   function fila(f, nuevo) {
+    const c = f.comida;
     return `<tr${nuevo ? ' class="nuevo"' : ''}>
       <td><div class="persona">${avatar(f)}<div><div class="nom">${esc(f.nombre)}</div><div class="sub">${esc(f.departamento || 'Sin departamento')}, No. ${esc(f.usuario)}</div></div></div></td>
       <td>${f.entrada ? `<span class="num">${esc(f.entrada)}</span>` : '<span class="nada">—</span>'}</td>
-      <td>${f.salida ? `<span class="num">${esc(f.salida)}</span>` : '<span class="nada">—</span>'}</td>
-      <td>${f.checadas.length ? `<div class="horas">${f.checadas.map((h) => `<span>${esc(h)}</span>`).join('')}</div>` : '<span class="nada">—</span>'}</td>
+      <td>${celdaComida(f)}</td>
+      <td>${f.salida ? `<span class="num">${esc(f.salida)}</span>` : f.estado === 'incompleto' ? '<span class="chip tarde">Sin salida</span>' : '<span class="nada">—</span>'}</td>
       <td>${f.minutosTrabajados ? esc(dur(f.minutosTrabajados)) : '<span class="nada">—</span>'}</td>
+      <td>${celdaSaldo(f)}</td>
+      <td>${f.checadas.length ? `<div class="horas">${f.checadas.map((h) => `<span>${esc(h)}</span>`).join('')}</div>` : '<span class="nada">—</span>'}</td>
       <td><div class="chips">
-        <span class="chip ${f.estado}"><i></i>${ESTADOS[f.estado]}</span>
-        ${f.retardo ? `<span class="chip tarde">${f.minutosTarde} min tarde</span>` : ''}
+        <span class="chip ${f.estado === 'incompleto' ? 'tarde' : f.estado}"><i></i>${ESTADOS[f.estado]}</span>
+        ${f.retardo ? `<span class="chip tarde">Llegó ${f.minutosTarde} min tarde</span>` : ''}
+        ${c && c.exceso && !c.enCurso ? `<span class="chip tarde">Comida ${c.exceso} min de más</span>` : ''}
+        ${c && c.exceso && c.enCurso ? `<span class="chip tarde">Ya pasó su hora por ${c.exceso} min</span>` : ''}
+        ${f.tipoDia === 'sabado' && f.minutosFuera ? `<span class="chip tarde">Salió ${f.minutosFuera} min a media jornada</span>` : ''}
+        ${f.sinComida ? '<span class="chip pend">No checó su comida</span>' : ''}
+        ${f.salidaAnticipada ? `<span class="chip tarde">Salió ${f.salidaAnticipada} min antes</span>` : ''}
+        ${f.minutosExtra ? `<span class="chip presente">Se quedó ${f.minutosExtra} min de más</span>` : ''}
         ${f.sinNombre ? '<span class="chip pend">Falta su nombre</span>' : ''}
       </div></td></tr>`;
   }
@@ -449,12 +496,12 @@
   /* ---------- Día ---------- */
   let datosDia = null;
   async function cargarDia(silencioso) {
-    if (!silencioso) $('tbDia').innerHTML = esqueleto(6, 6);
+    if (!silencioso) $('tbDia').innerHTML = esqueleto(6, 8);
     try { datosDia = await json(`/api/resumen?desde=${dia}&hasta=${dia}`); } catch (e) { fallo(e); return; }
     $('tituloDia').textContent = dia === CFG.hoy ? 'Checadas de hoy' : `Checadas del ${fechaLarga(dia, true)}`;
     $('diaSig').disabled = dia >= CFG.hoy;
     const c = datosDia.conteos;
-    contar($('nTodas'), c.personas); contar($('nPresentes'), c.presentes); contar($('nRetardos'), c.retardos);
+    contar($('nTodas'), c.personas); contar($('nPresentes'), c.presentes); contar($('nComida'), c.comida); contar($('nRetardos'), c.retardos);
     contar($('nSalieron'), c.salieron); contar($('nSin'), c.sinRegistro);
     pintarDia(silencioso);
   }
@@ -466,12 +513,13 @@
       if (filtro === 'retardos' && !f.retardo) return false;
       if (filtro === 'salieron' && f.estado !== 'salio') return false;
       if (filtro === 'sin' && f.estado !== 'sin_registro') return false;
+      if (filtro === 'comida' && f.estado !== 'comida') return false;
       return !q || norm(`${f.nombre} ${f.departamento} ${f.usuario}`).includes(q);
     });
     const vistos = new Set(datosDia.filas.map((f) => `${f.usuario}|${f.checadas.length}`));
     $('tbDia').innerHTML = lista.length
       ? lista.map((f) => fila(f, marcarNuevos && f.checadas.length && !vistosDia.has(`${f.usuario}|${f.checadas.length}`))).join('')
-      : `<tr><td colspan="6" class="vacio">${q ? 'Nadie coincide con tu búsqueda. Prueba con otra palabra.' : 'No hay personas en este grupo.'}</td></tr>`;
+      : `<tr><td colspan="8" class="vacio">${q ? 'Nadie coincide con tu búsqueda. Prueba con otra palabra.' : 'No hay personas en este grupo.'}</td></tr>`;
     vistosDia = vistos;
   }
   document.querySelectorAll('.filtro').forEach((b) => b.addEventListener('click', () => {
@@ -520,19 +568,23 @@
   }
   async function verHistorial() {
     if (!$('hDesde').value || !$('hHasta').value) { const [de, a] = rango('quincena'); $('hDesde').value = de; $('hHasta').value = a; }
-    $('tbHist').innerHTML = esqueleto(8, 6);
-    try { hist = await json(`/api/resumen?${paramsHist()}`); } catch (e) { fallo(e); $('tbHist').innerHTML = '<tr><td colspan="6" class="vacio">No se pudo cargar el historial.</td></tr>'; return; }
+    $('tbHist').innerHTML = esqueleto(8, 8);
+    try { hist = await json(`/api/resumen?${paramsHist()}`); } catch (e) { fallo(e); $('tbHist').innerHTML = '<tr><td colspan="8" class="vacio">No se pudo cargar el historial.</td></tr>'; return; }
     const filas = hist.filas.filter((f) => f.estado !== 'sin_registro');
     const c = hist.conteos;
     $('totales').hidden = false;
     const dias = $('hPersona').value ? filas.length : new Set(filas.map((f) => f.dia)).size;
     contar($('tDias'), dias); $('tDiasTxt').textContent = $('hPersona').value ? 'días trabajados' : 'días con checadas';
     $('tHoras').textContent = (c.minutos / 60).toLocaleString('es-MX', { maximumFractionDigits: 1 });
-    contar($('tRetardos'), c.retardos); contar($('tIncompletos'), c.incompletos); contar($('tChecadas'), c.checadas);
-    if (!filas.length) { $('tbHist').innerHTML = '<tr><td colspan="6" class="vacio">No hay checadas en estas fechas.</td></tr>'; return; }
+    contar($('tRetardos'), c.retardos); contar($('tIncompletos'), c.incompletos);
+    $('tDebe').textContent = hm(c.debe); $('tFavor').textContent = hm(c.aFavor);
+    $('tSaldo').textContent = c.saldo < 0 ? `-${hm(c.saldo)}` : c.saldo > 0 ? `+${hm(c.saldo)}` : '0:00';
+    $('tSaldo').style.color = c.saldo < 0 ? 'var(--rojo)' : c.saldo > 0 ? 'var(--verde)' : '';
+    $('tSaldoTxt').textContent = c.saldo < 0 ? 'saldo: deben tiempo' : c.saldo > 0 ? 'saldo: tiempo a favor' : 'saldo: al corriente'; contar($('tChecadas'), c.checadas);
+    if (!filas.length) { $('tbHist').innerHTML = '<tr><td colspan="8" class="vacio">No hay checadas en estas fechas.</td></tr>'; return; }
     let html = ''; let ultimo = null;
     for (const f of filas) {
-      if (f.dia !== ultimo) { html += `<tr class="sep"><td colspan="6">${esc(fechaLarga(f.dia, true))}</td></tr>`; ultimo = f.dia; }
+      if (f.dia !== ultimo) { html += `<tr class="sep"><td colspan="8">${esc(fechaLarga(f.dia, true))}</td></tr>`; ultimo = f.dia; }
       html += fila(f);
     }
     $('tbHist').innerHTML = html;
@@ -621,6 +673,7 @@
     if (!pin) return pedirPin();
     dia = dia || CFG.hoy;
     if (CFG.horaSabado) $('txtSabado').textContent = CFG.horaSabado;
+    $('txtHorario').innerHTML = `<span><b>Lunes a viernes:</b> ${esc(CFG.horaEntrada)} a ${esc(CFG.horaSalida)}, con ${esc(CFG.comidaMin)} min de comida obligatoria</span><span><b>Sábado:</b> ${esc(CFG.horaSabado)} a ${esc(CFG.salidaSabado)}, sin comida</span><span><b>Tolerancia de entrada:</b> ${esc(CFG.tolerancia)} min</span><span><b>Salida:</b> checada obligatoria</span>`;
     $('fechaDia').value = dia; $('fechaDia').max = CFG.hoy; $('hDesde').max = CFG.hoy; $('hHasta').max = CFG.hoy;
     await Promise.all([cargarDia(), revisarChecador(), cargarPersonas()]);
     if (!arrancar.reloj) {
