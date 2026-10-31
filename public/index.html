@@ -580,7 +580,7 @@
     $('tDebe').textContent = hm(c.debe); $('tFavor').textContent = hm(c.aFavor);
     $('tSaldo').textContent = c.saldo < 0 ? `-${hm(c.saldo)}` : c.saldo > 0 ? `+${hm(c.saldo)}` : '0:00';
     $('tSaldo').style.color = c.saldo < 0 ? 'var(--rojo)' : c.saldo > 0 ? 'var(--verde)' : '';
-    $('tSaldoTxt').textContent = c.saldo < 0 ? 'saldo: deben tiempo' : c.saldo > 0 ? 'saldo: tiempo a favor' : 'saldo: al corriente'; contar($('tChecadas'), c.checadas);
+    $('tSaldoTxt').textContent = c.saldo < 0 ? 'saldo: deben tiempo' : c.saldo > 0 ? 'saldo: tiempo a favor' : 'saldo: al corriente';
     if (!filas.length) { $('tbHist').innerHTML = '<tr><td colspan="8" class="vacio">No hay checadas en estas fechas.</td></tr>'; return; }
     let html = ''; let ultimo = null;
     for (const f of filas) {
