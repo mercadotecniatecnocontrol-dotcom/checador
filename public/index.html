@@ -284,7 +284,7 @@
     <div class="encabezado">
       <div>
         <h1>Personas</h1>
-        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y su hora de entrada para calcular los retardos. Las personas nuevas aparecen solas cuando checan por primera vez.</p>
+        <p class="ayuda">Cada persona tiene un número de empleado en el checador. Aquí le pones su departamento y su hora de entrada de lunes a viernes para calcular los retardos. Los sábados se usa una sola hora para todos: <b id="txtSabado">09:00</b>. Las personas nuevas aparecen solas cuando checan por primera vez.</p>
       </div>
       <div class="controles">
         <label class="campo">
@@ -296,7 +296,7 @@
     </div>
     <div class="tabla-env">
       <table>
-        <thead><tr><th>Persona</th><th>No. de empleado</th><th>Puesto</th><th>Hora de entrada</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>Persona</th><th>No. de empleado</th><th>Puesto</th><th>Entrada lunes a viernes</th><th>Estado</th><th></th></tr></thead>
         <tbody id="tbPersonas"></tbody>
       </table>
     </div>
@@ -310,7 +310,7 @@
     <div class="dlg-cuerpo">
       <div class="dos">
         <label>No. de empleado *<small>El mismo que tiene en el checador.</small><input type="text" name="usuario_checador" required></label>
-        <label>Hora de entrada<small>Vacío = hora general.</small><input type="time" name="hora_entrada"></label>
+        <label>Entrada lunes a viernes<small>Vacío = hora general. Los sábados todos entran a la hora de sábado.</small><input type="time" name="hora_entrada"></label>
       </div>
       <label>Nombre completo *<small>Nombre, segundo nombre, primer apellido, segundo apellido.</small><input type="text" name="nombre" required autocomplete="off"></label>
       <div class="dos">
@@ -620,6 +620,7 @@
     if (!CFG.hoy) CFG = await fetch('/api/config').then((r) => r.json());
     if (!pin) return pedirPin();
     dia = dia || CFG.hoy;
+    if (CFG.horaSabado) $('txtSabado').textContent = CFG.horaSabado;
     $('fechaDia').value = dia; $('fechaDia').max = CFG.hoy; $('hDesde').max = CFG.hoy; $('hHasta').max = CFG.hoy;
     await Promise.all([cargarDia(), revisarChecador(), cargarPersonas()]);
     if (!arrancar.reloj) {
