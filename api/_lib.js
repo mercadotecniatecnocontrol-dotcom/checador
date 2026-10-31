@@ -102,6 +102,21 @@ function reglasDe(p, dia) {
   };
 }
 
+// ¿La persona trabajaba en la empresa ese día? (según fecha de alta y de baja)
+function vigente(p, dia) {
+  if (!p) return true;
+  if (p.fecha_alta && dia < String(p.fecha_alta).slice(0, 10)) return false;
+  if (p.fecha_baja) return dia <= String(p.fecha_baja).slice(0, 10);
+  return p.activo !== false;
+}
+
+// Minutos que debe trabajar ese día (ya sin la comida)
+function minutosEsperados(p, dia) {
+  const r = reglasDe(p, dia);
+  if (!r.entrada) return 0;
+  return aMin(r.salida) - aMin(r.entrada) - (r.comida ? CFG.comidaMin : 0);
+}
+
 /* -------------------------------------------------------------- Lecturas */
 async function leerPersonas() {
   const { data, error } = await sb().from('checador_personas').select('*').range(0, 4999);
@@ -255,7 +270,7 @@ async function resumen({ desde, hasta, usuario, conFaltas }) {
   if (conFaltas && desde === hasta && diaSemana(desde) !== 0) {
     const conRegistro = new Set(filas.map((f) => f.usuario));
     for (const p of personas.values()) {
-      if (!p.activo || conRegistro.has(p.usuario_checador)) continue;
+      if (!vigente(p, desde) || conRegistro.has(p.usuario_checador)) continue;
       if (usuario && p.usuario_checador !== usuario) continue;
       const r = reglasDe(p, desde);
       filas.push({
@@ -291,5 +306,5 @@ const durTexto = (m, conSigno) => {
 
 module.exports = {
   CFG, NOMBRE_TEMPORAL, sb, manejar, leerRango, resumen, leerPersonas, vistaPersona, porNombre,
-  diaLocal, horaLocal, durTexto, esDia, etiquetaChecada,
+  diaLocal, horaLocal, durTexto, esDia, etiquetaChecada, vigente, minutosEsperados, diaSemana, sumarDias, reglasDe,
 };
