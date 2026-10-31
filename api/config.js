@@ -8,6 +8,7 @@ module.exports = (req, res) => {
     hoy: diaLocal(new Date()),
     zona: CFG.tz,
     horaEntrada: CFG.horaEntrada,
+    horaSabado: CFG.horaSabado,
     tolerancia: CFG.tolerancia,
   });
 };
